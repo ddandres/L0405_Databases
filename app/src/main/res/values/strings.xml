@@ -1,0 +1,18 @@
+<!--
+  ~ Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
+  -->
+
+<resources>
+    <string name="app_name">L04.05_Databases</string>
+    <string name="action_new">New</string>
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_clear">Clear</string>
+    <string name="name">Name:</string>
+    <string name="email">Email:</string>
+    <string name="phone">Phone:</string>
+    <string name="hint_name">Enter name</string>
+    <string name="hint_email">Enter email address</string>
+    <string name="hint_phone">Enter phone number</string>
+    <string name="name_required">Please, enter your contact\'s name</string>
+</resources>
