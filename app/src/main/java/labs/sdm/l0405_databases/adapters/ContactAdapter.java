@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
+ */
+
 package labs.sdm.l0405_databases.adapters;
 
 import android.content.Context;
