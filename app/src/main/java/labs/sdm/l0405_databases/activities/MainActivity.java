@@ -16,14 +16,14 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import java.util.HashMap;
 import java.util.List;
 
 import labs.sdm.l0405_databases.R;
+import labs.sdm.l0405_databases.adapters.ContactAdapter;
 import labs.sdm.l0405_databases.database.CustomSqliteOpenHelper;
+import labs.sdm.l0405_databases.pojo.Contact;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,10 +33,8 @@ public class MainActivity extends AppCompatActivity {
     final static int STATE_NEW = 1;
     final static int STATE_EDIT = 2;
 
-    // Data source for contacts
-    List<HashMap<String, String>> contactList = null;
     // Adapter object linking the data source and the ListView
-    SimpleAdapter adapter = null;
+    ContactAdapter adapter = null;
 
     // Hold references to View objects
     EditText etName = null;
@@ -48,9 +46,7 @@ public class MainActivity extends AppCompatActivity {
     // Current state of edition
     int state = STATE_NONE;
     // Position of the element selected from the list
-    int itemSelected = 0;
-
-    CustomSqliteOpenHelper helper;
+    int selectedPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,12 +78,13 @@ public class MainActivity extends AppCompatActivity {
                 // Enter edition mode
                 enableEdition();
                 // Update EditTexts with contact's data
-                etName.setText(contactList.get(position).get("name"));
-                etEmail.setText(contactList.get(position).get("email"));
-                etPhone.setText(contactList.get(position).get("phone"));
+                final Contact contact = (Contact) adapter.getItem(position);
+                etName.setText(contact.getName());
+                etEmail.setText(contact.getEmail());
+                etPhone.setText(contact.getPhone());
 
                 // Remember the position of the selected object form the list
-                itemSelected = position;
+                selectedPosition = position;
 
                 // Remember the app is in edition mode
                 state = STATE_EDIT;
@@ -96,19 +93,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Instance of CustomSqliteOpenHelper to perform operation on the database
-        helper = CustomSqliteOpenHelper.getInstance(this);
-
         // Get all contacts stored in the database
-        contactList = helper.getContacts();
+        List<Contact> contactList = CustomSqliteOpenHelper.getInstance(this).getContacts();
 
         // Create the adapter linking the data source to the ListView
-        adapter = new SimpleAdapter(
-                this,
-                contactList,
-                R.layout.list_item, new String[]{"name", "email", "phone"},
-                new int[]{R.id.tvName, R.id.tvEmail, R.id.tvPhone}
-        );
+        adapter = new ContactAdapter(this, R.layout.list_item, contactList);
+
         // Set the data behind this ListView
         list.setAdapter(adapter);
     }
@@ -172,30 +162,25 @@ public class MainActivity extends AppCompatActivity {
                 // The contact's name is mandatory to create a new contact
                 if (etName.getText().toString().equalsIgnoreCase("")) {
                     Toast.makeText(this, R.string.name_required, Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     // Get all the information from the data fields
                     final String name = etName.getText().toString();
                     final String email = etEmail.getText().toString();
                     final String phone = etPhone.getText().toString();
-                    // Create a new object for the List
-                    final HashMap<String, String> contact = new HashMap<>();
-                    contact.put("name", name);
-                    contact.put("email", email);
-                    contact.put("phone", phone);
+                    // Create a new contact
+                    final Contact contact = new Contact(name, email, phone);
 
                     // If creating a new contact, then add it to the list and database
                     if (state == STATE_NEW) {
-                        contactList.add(contact);
-                        helper.addContact(name, email, phone);
+                        CustomSqliteOpenHelper.getInstance(this).addContact(contact);
+                        adapter.add(contact);
                     }
                     // If editing an existing contact, then update the list and database
                     else if (state == STATE_EDIT) {
-                        contactList.set(itemSelected, contact);
-                        helper.updateContact(name, email, phone);
+                        final String key = ((Contact) adapter.getItem(selectedPosition)).getName();
+                        CustomSqliteOpenHelper.getInstance(this).updateContact(key, contact);
+                        adapter.update(contact, selectedPosition);
                     }
-                    // Notify the adapter to update the ListView since its data source has changed
-                    adapter.notifyDataSetChanged();
 
                     // Clear the data fields
                     clearEdition();
@@ -230,13 +215,11 @@ public class MainActivity extends AppCompatActivity {
             // Delete the contact from the database
             case R.id.action_delete:
                 // Get the data of the selected contact
-                final HashMap<String, String> contact = contactList.get(itemSelected);
+                final Contact contact = (Contact) adapter.getItem(selectedPosition);
                 // Delete the contact form the database
-                helper.deleteContact(contact.get("name"), contact.get("email"), contact.get("phone"));
+                CustomSqliteOpenHelper.getInstance(this).deleteContact(contact);
                 // Remove the contact from the list
-                contactList.remove(itemSelected);
-                // Notify the adapter to update the ListView since its data source has changed
-                adapter.notifyDataSetChanged();
+                adapter.remove(contact);
                 // Clear the data fields
                 clearEdition();
                 // Stop editing
