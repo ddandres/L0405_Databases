@@ -1,4 +1,8 @@
-package labs.sdm.l0405_databases;
+/*
+ * Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
+ */
+
+package labs.dadm.l0405_databases;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -7,7 +11,7 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -21,6 +25,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("labs.sdm.l0405_databases", appContext.getPackageName());
+        assertEquals("labs.dadm.l0405_databases", appContext.getPackageName());
     }
 }

@@ -3,7 +3,7 @@
  * Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
  */
 
-package labs.sdm.l0405_databases.activities;
+package labs.dadm.l0405_databases.activities;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -20,10 +20,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import labs.sdm.l0405_databases.R;
-import labs.sdm.l0405_databases.adapters.ContactAdapter;
-import labs.sdm.l0405_databases.database.CustomSqliteOpenHelper;
-import labs.sdm.l0405_databases.pojo.Contact;
+import labs.dadm.l0405_databases.R;
+import labs.dadm.l0405_databases.adapters.ContactAdapter;
+import labs.dadm.l0405_databases.database.CustomSqliteOpenHelper;
+import labs.dadm.l0405_databases.pojo.Contact;
 
 
 public class MainActivity extends AppCompatActivity {

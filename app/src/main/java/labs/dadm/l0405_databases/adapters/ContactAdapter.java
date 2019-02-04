@@ -2,7 +2,7 @@
  * Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
  */
 
-package labs.sdm.l0405_databases.adapters;
+package labs.dadm.l0405_databases.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -15,16 +15,15 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import labs.sdm.l0405_databases.R;
-import labs.sdm.l0405_databases.pojo.Contact;
+import labs.dadm.l0405_databases.R;
+import labs.dadm.l0405_databases.pojo.Contact;
 
 /**
  * Custom adapter to associate the source data with Views within the ListView.
  */
 public class ContactAdapter extends ArrayAdapter {
 
-    // Hold reference to the context and layout
-    private Context context;
+    // Hold reference to the layout
     private int layout;
 
     // Hold references to View elements
@@ -36,7 +35,6 @@ public class ContactAdapter extends ArrayAdapter {
 
     public ContactAdapter(@NonNull Context context, int resource, @NonNull List<Contact> objects) {
         super(context, resource, objects);
-        this.context = context;
         this.layout = resource;
     }
 
@@ -52,7 +50,7 @@ public class ContactAdapter extends ArrayAdapter {
         // Reuse the View if it already exists
         if (result == null) {
             // Inflate the View to create it for the first time
-            result = LayoutInflater.from(context).inflate(layout, null);
+            result = LayoutInflater.from(getContext()).inflate(layout, null);
 
             // Keep references for View elements in the layout
             holder = new ContactHolder();

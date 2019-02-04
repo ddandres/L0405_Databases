@@ -2,7 +2,7 @@
  * Copyright (c) 2018. David de Andrés and Juan Carlos Ruiz, DISCA - UPV, Development of apps for mobile devices.
  */
 
-package labs.sdm.l0405_databases.database;
+package labs.dadm.l0405_databases.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,7 +13,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import labs.sdm.l0405_databases.pojo.Contact;
+import labs.dadm.l0405_databases.pojo.Contact;
 
 public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
 
