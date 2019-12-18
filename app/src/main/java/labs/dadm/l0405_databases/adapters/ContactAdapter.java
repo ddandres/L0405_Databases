@@ -74,16 +74,4 @@ public class ContactAdapter extends ArrayAdapter {
         return result;
     }
 
-    /*
-        Updates the information of a contact located at a given position.
-     */
-    public void update(Contact contact, int position) {
-        // Get the contact located a the given position
-        Contact replaceContact = (Contact) getItem(position);
-        // Remove that contact
-        remove(replaceContact);
-        // Insert the new contact (the one with updated information) at that same position
-        insert(contact, position);
-    }
-
 }

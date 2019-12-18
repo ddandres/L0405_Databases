@@ -19,6 +19,7 @@ class ContactContract {
     // By implementing BaseColumns it inherits a primary key called _ID
     static class ContactEntry implements BaseColumns {
         static final String TABLE_NAME = "contacts_table";
+        static final String COLUMN_NAME_ID = "_ID";
         static final String COLUMN_NAME_NAME = "name";
         static final String COLUMN_NAME_EMAIL = "email";
         static final String COLUMN_NAME_PHONE = "phone";

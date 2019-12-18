@@ -94,7 +94,8 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         // Query the table to get the name, email, and phone for all existing entries
         Cursor cursor = database.query(
                 ContactContract.ContactEntry.TABLE_NAME,
-                new String[]{ContactContract.ContactEntry.COLUMN_NAME_NAME,
+                new String[]{ContactContract.ContactEntry.COLUMN_NAME_ID,
+                        ContactContract.ContactEntry.COLUMN_NAME_NAME,
                         ContactContract.ContactEntry.COLUMN_NAME_EMAIL,
                         ContactContract.ContactEntry.COLUMN_NAME_PHONE},
                 null,
@@ -107,9 +108,10 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             // Create Contact object for the given entry in the database
             contact = new Contact(
-                    cursor.getString(0),
                     cursor.getString(1),
-                    cursor.getString(2));
+                    cursor.getString(2),
+                    cursor.getString(3));
+            contact.set_ID(cursor.getLong(0));
             // Add the object to the result list
             result.add(contact);
         }
@@ -120,9 +122,10 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
     }
 
     /*
-        Insert a new contact into the database
+        Insert a new contact into the database.
+        Returns the ID of the inserted Contact.
     */
-    public void addContact(Contact contact) {
+    public long addContact(Contact contact) {
         // Get access to the database in write mode
         SQLiteDatabase database = getWritableDatabase();
         // Insert the new contact into the table (autoincremental id)
@@ -130,15 +133,17 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
-        database.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
+        final long id = database.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
         // Close the database
         database.close();
+        // Return the ID for the newly added Contact
+        return id;
     }
 
     /*
         Update the data of a given contact from the database
     */
-    public void updateContact(String name, Contact contact) {
+    public void updateContact(Contact contact) {
         // Get access to the database in write mode
         SQLiteDatabase database = getWritableDatabase();
         // Update the data from the contact identified by the given name
@@ -148,8 +153,8 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
         database.update(ContactContract.ContactEntry.TABLE_NAME,
                 values,
-                ContactContract.ContactEntry.COLUMN_NAME_NAME + "=?",
-                new String[]{name});
+                ContactContract.ContactEntry.COLUMN_NAME_ID + "=?",
+                new String[]{String.valueOf(contact.get_ID())});
         // Close the database
         database.close();
     }
@@ -160,16 +165,10 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
     public void deleteContact(Contact contact) {
         // Get access to the database in write mode
         SQLiteDatabase database = getWritableDatabase();
-        // Remove contacts from the database with matching name, email, and phone
-        ContentValues values = new ContentValues();
-        values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
-        values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
-        values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
+        // Remove contacts from the database with matching ID
         database.delete(ContactContract.ContactEntry.TABLE_NAME,
-                ContactContract.ContactEntry.COLUMN_NAME_NAME + "=? AND " +
-                        ContactContract.ContactEntry.COLUMN_NAME_EMAIL + "=? AND + " +
-                        ContactContract.ContactEntry.COLUMN_NAME_PHONE + "=?",
-                new String[]{contact.getName(), contact.getEmail(), contact.getPhone()});
+                ContactContract.ContactEntry.COLUMN_NAME_ID + "=?",
+                new String[]{String.valueOf(contact.get_ID())});
         // Close the database
         database.close();
     }

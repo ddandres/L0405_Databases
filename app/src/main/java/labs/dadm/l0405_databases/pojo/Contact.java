@@ -6,6 +6,9 @@ package labs.dadm.l0405_databases.pojo;
 
 public class Contact {
 
+    // ID
+    private long _ID;
+
     // Name of the contact
     private String name;
     // Email of the contact
@@ -42,4 +45,13 @@ public class Contact {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public long get_ID() {
+        return _ID;
+    }
+
+    public void set_ID(long _ID) {
+        this._ID = _ID;
+    }
+
 }

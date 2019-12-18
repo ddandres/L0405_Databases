@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Get all contacts stored in the database
-        List<Contact> contactList = CustomSqliteOpenHelper.getInstance(this).getContacts();
+        final List<Contact> contactList = CustomSqliteOpenHelper.getInstance(this).getContacts();
 
         // Create the adapter linking the data source to the ListView
         adapter = new ContactAdapter(this, R.layout.list_item, contactList);
@@ -168,19 +168,21 @@ public class MainActivity extends AppCompatActivity {
                     final String name = etName.getText().toString();
                     final String email = etEmail.getText().toString();
                     final String phone = etPhone.getText().toString();
-                    // Create a new contact
-                    final Contact contact = new Contact(name, email, phone);
 
                     // If creating a new contact, then add it to the list and database
                     if (state == STATE_NEW) {
-                        CustomSqliteOpenHelper.getInstance(this).addContact(contact);
+                        // Create a new contact
+                        final Contact contact = new Contact(name, email, phone);
+                        contact.set_ID(CustomSqliteOpenHelper.getInstance(this).addContact(contact));
                         adapter.add(contact);
                     }
                     // If editing an existing contact, then update the list and database
                     else if (state == STATE_EDIT) {
-                        final String key = ((Contact) adapter.getItem(selectedPosition)).getName();
-                        CustomSqliteOpenHelper.getInstance(this).updateContact(key, contact);
-                        adapter.update(contact, selectedPosition);
+                        final Contact contact = (Contact) adapter.getItem(selectedPosition);
+                        contact.setName(name);
+                        contact.setEmail(email);
+                        contact.setPhone(phone);
+                        CustomSqliteOpenHelper.getInstance(this).updateContact(contact);
                     }
 
                     // Clear the data fields
