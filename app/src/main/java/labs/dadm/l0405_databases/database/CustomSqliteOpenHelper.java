@@ -17,13 +17,30 @@ import labs.dadm.l0405_databases.pojo.Contact;
 
 public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
 
+    // SQL sentence to create the contacts table
+    private static final String SQL_CREATE_ENTRIES =
+            "CREATE TABLE " + ContactContract.ContactEntry.TABLE_NAME + " (" +
+                    ContactContract.ContactEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    ContactContract.ContactEntry.COLUMN_NAME_NAME + " TEXT NOT NULL, " +
+                    ContactContract.ContactEntry.COLUMN_NAME_EMAIL + " TEXT NOT NULL, " +
+                    ContactContract.ContactEntry.COLUMN_NAME_PHONE + " TEXT NOT NULL)";
+
+    // SQL sentence to remove the contacts table
+    private static final String SQL_DELETE_ENTRIES =
+            "DROP TABLE IF EXISTS " + ContactContract.ContactEntry.TABLE_NAME;
+
+    // Database version
+    private static final int DATABASE_VERSION = 1;
+    // Database name
+    private static final String DATABASE_NAME = "contacts_database";
+
     // Singleton pattern to centralize access to the
     private static CustomSqliteOpenHelper ourInstance;
 
     public synchronized static CustomSqliteOpenHelper getInstance(Context context) {
 
         if (ourInstance == null) {
-            ourInstance = new CustomSqliteOpenHelper(context, "contacts_database", null, 1);
+            ourInstance = new CustomSqliteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
         return ourInstance;
 
@@ -47,12 +64,11 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // SQL query to create a contacts_table table with
-        //  autoincremental integer primary key: id
+        //  autoincremental integer primary key: _id
         //  String not null: name
         //  String not null: email
         //  String not null: phone
-        db.execSQL("CREATE TABLE contacts_table (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
-                "name TEXT NOT NULL, email TEXT NOT NULL, phone TEXT NOT NULL);");
+        db.execSQL(SQL_CREATE_ENTRIES);
     }
 
     /*
@@ -61,7 +77,8 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL(SQL_DELETE_ENTRIES);
+        onCreate(db);
     }
 
     /*
@@ -75,11 +92,20 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         // Get access to the database in read mode
         SQLiteDatabase database = getReadableDatabase();
         // Query the table to get the name, email, and phone for all existing entries
-        Cursor cursor = database.query("contacts_table", new String[]{"name", "email", "phone"},
-                null, null, null, null, "name", null);
+        Cursor cursor = database.query(
+                ContactContract.ContactEntry.TABLE_NAME,
+                new String[]{ContactContract.ContactEntry.COLUMN_NAME_NAME,
+                        ContactContract.ContactEntry.COLUMN_NAME_EMAIL,
+                        ContactContract.ContactEntry.COLUMN_NAME_PHONE},
+                null,
+                null,
+                null,
+                null,
+                ContactContract.ContactEntry.COLUMN_NAME_NAME,
+                null);
         // Go through the resulting cursor
         while (cursor.moveToNext()) {
-            // Create a HashMap<String,String> object for the given entry in the database
+            // Create Contact object for the given entry in the database
             contact = new Contact(
                     cursor.getString(0),
                     cursor.getString(1),
@@ -101,10 +127,10 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = getWritableDatabase();
         // Insert the new contact into the table (autoincremental id)
         ContentValues values = new ContentValues();
-        values.put("name", contact.getName());
-        values.put("email", contact.getEmail());
-        values.put("phone", contact.getPhone());
-        database.insert("contacts_table", null, values);
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
+        database.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
         // Close the database
         database.close();
     }
@@ -117,10 +143,13 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = getWritableDatabase();
         // Update the data from the contact identified by the given name
         ContentValues values = new ContentValues();
-        values.put("name", contact.getName());
-        values.put("email", contact.getEmail());
-        values.put("phone", contact.getPhone());
-        database.update("contacts_table", values, "name=?", new String[]{name});
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
+        database.update(ContactContract.ContactEntry.TABLE_NAME,
+                values,
+                ContactContract.ContactEntry.COLUMN_NAME_NAME + "=?",
+                new String[]{name});
         // Close the database
         database.close();
     }
@@ -133,10 +162,13 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = getWritableDatabase();
         // Remove contacts from the database with matching name, email, and phone
         ContentValues values = new ContentValues();
-        values.put("name", contact.getName());
-        values.put("email", contact.getEmail());
-        values.put("phone", contact.getPhone());
-        database.delete("contacts_table", "name=? AND email=? and phone=?",
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
+        values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
+        database.delete(ContactContract.ContactEntry.TABLE_NAME,
+                ContactContract.ContactEntry.COLUMN_NAME_NAME + "=? AND " +
+                        ContactContract.ContactEntry.COLUMN_NAME_EMAIL + "=? AND + " +
+                        ContactContract.ContactEntry.COLUMN_NAME_PHONE + "=?",
                 new String[]{contact.getName(), contact.getEmail(), contact.getPhone()});
         // Close the database
         database.close();
