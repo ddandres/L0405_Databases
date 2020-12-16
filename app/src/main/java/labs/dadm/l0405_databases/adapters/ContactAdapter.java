@@ -22,13 +22,13 @@ import labs.dadm.l0405_databases.pojo.Contact;
 /**
  * Custom adapter to associate the source data with Views within the ListView.
  */
-public class ContactAdapter extends ArrayAdapter {
+public class ContactAdapter extends ArrayAdapter<Contact> {
 
     // Hold reference to the layout
-    private int layout;
+    private final int layout;
 
     // Hold references to View elements
-    private class ContactHolder {
+    private static class ContactHolder {
         TextView tvName;
         TextView tvEmail;
         TextView tvPhone;
