@@ -10,12 +10,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -68,27 +68,14 @@ public class MainActivity extends AppCompatActivity {
         // App is not in edition mode
         disableEdition();
 
+        findViewById(R.id.bSend).setOnClickListener(v -> sendMessage());
+        findViewById(R.id.bCall).setOnClickListener(v -> callContact());
+
         // Reference to the ListView object displaying the contacts
-        ListView list = findViewById(R.id.lvAgenda);
+        final ListView list = findViewById(R.id.lvAgenda);
         // When an item in the list is clicked
         // enable the edition mode and display the contact's data
-        list.setOnItemClickListener((parent, view, position, id) -> {
-            // Enter edition mode
-            enableEdition();
-            // Update EditTexts with contact's data
-            final Contact contact = (Contact) adapter.getItem(position);
-            etName.setText(contact.getName());
-            etEmail.setText(contact.getEmail());
-            etPhone.setText(contact.getPhone());
-
-            // Remember the position of the selected object form the list
-            selectedPosition = position;
-
-            // Remember the app is in edition mode
-            state = STATE_EDIT;
-            // Update action buttons in the ActionBar
-            supportInvalidateOptionsMenu();
-        });
+        list.setOnItemClickListener((parent, view, position, id) -> displayContactData(position));
 
         // Get all contacts stored in the database
         final List<Contact> contactList = CustomSqliteOpenHelper.getInstance(this).getContacts();
@@ -100,11 +87,28 @@ public class MainActivity extends AppCompatActivity {
         list.setAdapter(adapter);
     }
 
-    /*
-        This method is executed when the activity is created to populate the ActionBar with actions
-     */
+    // Enables the edition mode and displays the contact's data
+    private void displayContactData(int position) {
+        // Enter edition mode
+        enableEdition();
+        // Update EditTexts with contact's data
+        final Contact contact = (Contact) adapter.getItem(position);
+        etName.setText(contact.getName());
+        etEmail.setText(contact.getEmail());
+        etPhone.setText(contact.getPhone());
+
+        // Remember the position of the selected object form the list
+        selectedPosition = position;
+
+        // Remember the app is in edition mode
+        state = STATE_EDIT;
+        // Update action buttons in the ActionBar
+        supportInvalidateOptionsMenu();
+    }
+
+    // This method is executed when the activity is created to populate the ActionBar with actions
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         // Generate the Menu object from the XML resource file
         getMenuInflater().inflate(R.menu.main, menu);
         // Make actions visible according to the app's edition mode
@@ -132,25 +136,15 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    /*
-        This method is executed when any action from the ActionBar is selected
-    */
+    // This method is executed when any action from the ActionBar is selected
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         // Determine the action to take place according to the Id of the action selected
         final int selectedItem = item.getItemId();
         if (selectedItem == R.id.action_new) {
-            // Prepare the interface to introduce the data of a new contact
-
-            // Enable edition
-            enableEdition();
-            // Clear the data fields
-            clearEdition();
-            // App is now editing a new contact
-            state = STATE_NEW;
-            // Update action buttons in the ActionBar
-            supportInvalidateOptionsMenu();
+            // Prepare the interface for introducing a new contact
+            prepareInterfaceForNewContact();
             return true;
         } else if (selectedItem == R.id.action_save) {
             // Store the data under modification
@@ -159,81 +153,104 @@ public class MainActivity extends AppCompatActivity {
             if (etName.getText().toString().equalsIgnoreCase("")) {
                 Toast.makeText(this, R.string.name_required, Toast.LENGTH_SHORT).show();
             } else {
-                // Get all the information from the data fields
-                final String name = etName.getText().toString();
-                final String email = etEmail.getText().toString();
-                final String phone = etPhone.getText().toString();
-
-                // If creating a new contact, then add it to the list and database
-                if (state == STATE_NEW) {
-                    // Create a new contact
-                    final Contact contact = new Contact(name, email, phone);
-                    contact.set_ID(CustomSqliteOpenHelper.getInstance(this).addContact(contact));
-                    adapter.add(contact);
-                }
-                // If editing an existing contact, then update the list and database
-                else if (state == STATE_EDIT) {
-                    final Contact contact = (Contact) adapter.getItem(selectedPosition);
-                    contact.setName(name);
-                    contact.setEmail(email);
-                    contact.setPhone(phone);
-                    CustomSqliteOpenHelper.getInstance(this).updateContact(contact);
-                }
-
-                // Clear the data fields
-                clearEdition();
-                // Stop editing
-                disableEdition();
-                // App is not in edition mode
-                state = STATE_NONE;
-                // Update action buttons in the ActionBar
-                supportInvalidateOptionsMenu();
+                storeData();
             }
             return true;
         } else if (selectedItem == R.id.action_clear) {
             // Clear data fields and stop editing
-
-            // If creating a new contact, then clear the data fields
-            if (state == STATE_NEW) {
-                // Clear the data fields
-                clearEdition();
-            }
-            // If editing an existing contact, then clear the data fields and stop editing
-            else if (state == STATE_EDIT) {
-                // Clear the data fields
-                clearEdition();
-                // Stop editing
-                disableEdition();
-                state = STATE_NONE;
-                // Update action buttons in the ActionBar
-                supportInvalidateOptionsMenu();
-            }
+            cancelEdition();
             return true;
         } else if (selectedItem == R.id.action_delete) {
             // Delete the contact from the database
-
-            // Get the data of the selected contact
-            final Contact contact = (Contact) adapter.getItem(selectedPosition);
-            // Delete the contact form the database
-            CustomSqliteOpenHelper.getInstance(this).deleteContact(contact);
-            // Remove the contact from the list
-            adapter.remove(contact);
-            // Clear the data fields
-            clearEdition();
-            // Stop editing
-            disableEdition();
-            // App is not in edition mode
-            state = STATE_NONE;
-            // Update action buttons in the ActionBar
-            supportInvalidateOptionsMenu();
+            deleteContact();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-        Enable all View in edition mode
-     */
+    // Deletes the contact from the database
+    private void deleteContact() {
+        // Get the data of the selected contact
+        final Contact contact = (Contact) adapter.getItem(selectedPosition);
+        // Delete the contact form the database
+        CustomSqliteOpenHelper.getInstance(this).deleteContact(contact);
+        // Remove the contact from the list
+        adapter.remove(contact);
+        // Clear the data fields
+        clearEdition();
+        // Stop editing
+        disableEdition();
+        // App is not in edition mode
+        state = STATE_NONE;
+        // Update action buttons in the ActionBar
+        supportInvalidateOptionsMenu();
+    }
+
+    // Clears data fields and stops editing
+    private void cancelEdition() {
+        // If creating a new contact, then clear the data fields
+        if (state == STATE_NEW) {
+            // Clear the data fields
+            clearEdition();
+        }
+        // If editing an existing contact, then clear the data fields and stop editing
+        else if (state == STATE_EDIT) {
+            // Clear the data fields
+            clearEdition();
+            // Stop editing
+            disableEdition();
+            state = STATE_NONE;
+            // Update action buttons in the ActionBar
+            supportInvalidateOptionsMenu();
+        }
+    }
+
+    // Stores the data under modification
+    private void storeData() {
+        // Get all the information from the data fields
+        final String name = etName.getText().toString();
+        final String email = etEmail.getText().toString();
+        final String phone = etPhone.getText().toString();
+
+        // If creating a new contact, then add it to the list and database
+        if (state == STATE_NEW) {
+            // Create a new contact
+            final Contact contact = new Contact(name, email, phone);
+            contact.set_ID(CustomSqliteOpenHelper.getInstance(this).addContact(contact));
+            adapter.add(contact);
+        }
+        // If editing an existing contact, then update the list and database
+        else if (state == STATE_EDIT) {
+            final Contact contact = (Contact) adapter.getItem(selectedPosition);
+            contact.setName(name);
+            contact.setEmail(email);
+            contact.setPhone(phone);
+            CustomSqliteOpenHelper.getInstance(this).updateContact(contact);
+        }
+
+        // Clear the data fields
+        clearEdition();
+        // Stop editing
+        disableEdition();
+        // App is not in edition mode
+        state = STATE_NONE;
+        // Update action buttons in the ActionBar
+        supportInvalidateOptionsMenu();
+    }
+
+    // Prepares the interface to introduce the data of a new contact
+    private void prepareInterfaceForNewContact() {
+        // Enable edition
+        enableEdition();
+        // Clear the data fields
+        clearEdition();
+        // App is now editing a new contact
+        state = STATE_NEW;
+        // Update action buttons in the ActionBar
+        supportInvalidateOptionsMenu();
+    }
+
+    // Enables all View in edition mode
     private void enableEdition() {
         etName.setEnabled(true);
         etEmail.setEnabled(true);
@@ -242,9 +259,7 @@ public class MainActivity extends AppCompatActivity {
         ibCall.setEnabled(true);
     }
 
-    /*
-        Disable all View when not in edition mode
-     */
+    // Disables all View when not in edition mode
     private void disableEdition() {
         etName.setEnabled(false);
         etEmail.setEnabled(false);
@@ -253,41 +268,32 @@ public class MainActivity extends AppCompatActivity {
         ibCall.setEnabled(false);
     }
 
-    /*
-        Clear all data fields
-     */
+    // Clears all data fields
     private void clearEdition() {
         etName.setText("");
         etEmail.setText("");
         etPhone.setText("");
     }
 
-    /*
-        This method is activated when either the send message or call buttons are clicked
-     */
-    public void onClickButton(View v) {
+    // Sends message
+    private void sendMessage() {
         // Create an implicit Intent
         Intent intent = new Intent();
-        // Determine the action to perform
-        final int buttonClicked = v.getId();
-        if (buttonClicked == R.id.bSend) {
-            // Send message
+        // Complete Intent information to send a message to the contact's email address
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setDataAndType(Uri.parse("mailto:"), "text/plain");
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{etEmail.getText().toString()});
+        // Use a chooser to select which application will handle the task
+        startActivity(Intent.createChooser(intent, "Send email..."));
+    }
 
-            // Complete Intent information to send a message to the contact's email address
-            intent.setAction(Intent.ACTION_SEND);
-            intent.setData(Uri.parse("mailto:"));
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{etEmail.getText().toString()});
-            // Use a chooser to select which application will handle the task
-            startActivity(Intent.createChooser(intent, "Send email..."));
-        } else if (buttonClicked == R.id.bCall) {
-            // Call
-
-            // Complete Intent information to dial the contact's phone number
-            intent.setAction(Intent.ACTION_DIAL);
-            intent.setData(Uri.parse("tel:" + etPhone.getText().toString()));
-            // Start dialer
-            startActivity(intent);
-        }
+    private void callContact() {
+        // Create an implicit Intent
+        Intent intent = new Intent();
+        // Complete Intent information to dial the contact's phone number
+        intent.setAction(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + etPhone.getText().toString()));
+        // Start dialer
+        startActivity(intent);
     }
 }

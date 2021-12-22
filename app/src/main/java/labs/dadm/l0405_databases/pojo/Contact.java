@@ -53,5 +53,4 @@ public class Contact {
     public void set_ID(long _ID) {
         this._ID = _ID;
     }
-
 }

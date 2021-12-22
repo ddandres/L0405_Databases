@@ -48,7 +48,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/send_button_description"
-        android:onClick="onClickButton"
         android:src="@android:drawable/ic_menu_send"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etName" />
@@ -76,7 +75,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:contentDescription="@string/call_button_description"
-        android:onClick="onClickButton"
         android:src="@android:drawable/ic_menu_call"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bSend" />

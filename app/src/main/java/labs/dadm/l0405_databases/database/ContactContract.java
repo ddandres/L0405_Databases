@@ -6,9 +6,7 @@ package labs.dadm.l0405_databases.database;
 
 import android.provider.BaseColumns;
 
-/*
-    Contracts define constants for names of URIs, tables and columns.
- */
+// Contracts define constants for names of URIs, tables and columns.
 class ContactContract {
 
     // Prevents anyone from instantiating this class

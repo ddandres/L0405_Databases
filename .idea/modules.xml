@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/L0405_Databases.iml" filepath="$PROJECT_DIR$/.idea/modules/L0405_Databases.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/L0405_Databases.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/L0405_Databases.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/L04.05_Database.iml" filepath="$PROJECT_DIR$/.idea/modules/L04.05_Database.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/L04.05_Database.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/L04.05_Database.app.iml" />
     </modules>
   </component>
 </project>

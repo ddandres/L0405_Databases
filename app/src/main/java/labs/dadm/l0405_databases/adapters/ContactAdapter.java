@@ -19,9 +19,7 @@ import java.util.List;
 import labs.dadm.l0405_databases.R;
 import labs.dadm.l0405_databases.pojo.Contact;
 
-/**
- * Custom adapter to associate the source data with Views within the ListView.
- */
+// Custom adapter to associate the source data with Views within the ListView.
 public class ContactAdapter extends ArrayAdapter<Contact> {
 
     // Hold reference to the layout
@@ -39,9 +37,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         this.layout = resource;
     }
 
-    /*
-        Creates and populates a View with the information from the required position of the data source.
-    */
+    // Creates and populates a View with the information from the required position of the data source.
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -73,5 +69,4 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
         // Return the View
         return result;
     }
-
 }

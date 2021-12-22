@@ -17,7 +17,11 @@ import labs.dadm.l0405_databases.pojo.Contact;
 
 public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
 
-    // SQL sentence to create the contacts table
+    // SQL sentence to create the contacts table with
+    //  autoincremental integer primary key: _id
+    //  String not null: name
+    //  String not null: email
+    //  String not null: phone
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + ContactContract.ContactEntry.TABLE_NAME + " (" +
                     ContactContract.ContactEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
@@ -34,65 +38,51 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
     // Database name
     private static final String DATABASE_NAME = "contacts_database";
 
-    // Singleton pattern to centralize access to the
+    // Singleton pattern to centralize access to the database
     private static CustomSqliteOpenHelper ourInstance;
 
     public synchronized static CustomSqliteOpenHelper getInstance(Context context) {
-
         if (ourInstance == null) {
-            ourInstance = new CustomSqliteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION);
+            ourInstance = new CustomSqliteOpenHelper(
+                    context, DATABASE_NAME, null, DATABASE_VERSION);
         }
         return ourInstance;
-
     }
 
-    /*
-        Create a helper object to manage a database
-        Parameters:
-          context
-          filename of the database, or null for in-memory database
-          factory to create cursor objects, default if null
-          version of the database (upgrades/downgrades existing ones)
-    */
+    // Create a helper object to manage a database with parameters
+    // context
+    // filename of the database, or null for in-memory database
+    // factory to create cursor objects, default if null
+    // version of the database (upgrades/downgrades existing ones)
     private CustomSqliteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
-    /*
-        This method is only called to create the database the first time it is accessed
-    */
+    // This method is only called to create the database the first time it is accessed
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // SQL query to create a contacts_table table with
-        //  autoincremental integer primary key: _id
-        //  String not null: name
-        //  String not null: email
-        //  String not null: phone
+        // SQL query to create a contacts_table table
         db.execSQL(SQL_CREATE_ENTRIES);
     }
 
-    /*
-        This method is only called when the database needs to be upgraded,
-        so it has been left blank
-    */
+    // This method is only called when the database needs to be upgraded,
+    // so it has been left blank
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(SQL_DELETE_ENTRIES);
         onCreate(db);
     }
 
-    /*
-        Get List<HashMap<String,String>> object with all the contacts stored
-        in the database to generate the data source to be later linked to a ListView:
-    */
+    // Get List<HashMap<String,String>> object with all the contacts stored
+    // in the database to generate the data source to be later linked to a ListView:
     public List<Contact> getContacts() {
-        List<Contact> result = new ArrayList<>();
+        final List<Contact> result = new ArrayList<>();
         Contact contact;
 
         // Get access to the database in read mode
-        SQLiteDatabase database = getReadableDatabase();
+        final SQLiteDatabase database = getReadableDatabase();
         // Query the table to get the name, email, and phone for all existing entries
-        Cursor cursor = database.query(
+        final Cursor cursor = database.query(
                 ContactContract.ContactEntry.TABLE_NAME,
                 new String[]{ContactContract.ContactEntry.COLUMN_NAME_ID,
                         ContactContract.ContactEntry.COLUMN_NAME_NAME,
@@ -121,33 +111,30 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    /*
-        Insert a new contact into the database.
-        Returns the ID of the inserted Contact.
-    */
+    // Insert a new contact into the database.
+    // Returns the ID of the inserted Contact.
     public long addContact(Contact contact) {
         // Get access to the database in write mode
-        SQLiteDatabase database = getWritableDatabase();
+        final SQLiteDatabase database = getWritableDatabase();
         // Insert the new contact into the table (autoincremental id)
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
-        final long id = database.insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
+        final long id = database
+                .insert(ContactContract.ContactEntry.TABLE_NAME, null, values);
         // Close the database
         database.close();
         // Return the ID for the newly added Contact
         return id;
     }
 
-    /*
-        Update the data of a given contact from the database
-    */
+    // Update the data of a given contact from the database
     public void updateContact(Contact contact) {
         // Get access to the database in write mode
-        SQLiteDatabase database = getWritableDatabase();
+        final SQLiteDatabase database = getWritableDatabase();
         // Update the data from the contact identified by the given name
-        ContentValues values = new ContentValues();
+        final ContentValues values = new ContentValues();
         values.put(ContactContract.ContactEntry.COLUMN_NAME_NAME, contact.getName());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_EMAIL, contact.getEmail());
         values.put(ContactContract.ContactEntry.COLUMN_NAME_PHONE, contact.getPhone());
@@ -159,12 +146,10 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         database.close();
     }
 
-    /*
-        Delete a given contact from the database
-    */
+    // Delete a given contact from the database
     public void deleteContact(Contact contact) {
         // Get access to the database in write mode
-        SQLiteDatabase database = getWritableDatabase();
+        final SQLiteDatabase database = getWritableDatabase();
         // Remove contacts from the database with matching ID
         database.delete(ContactContract.ContactEntry.TABLE_NAME,
                 ContactContract.ContactEntry.COLUMN_NAME_ID + "=?",
@@ -172,5 +157,4 @@ public class CustomSqliteOpenHelper extends SQLiteOpenHelper {
         // Close the database
         database.close();
     }
-
 }
